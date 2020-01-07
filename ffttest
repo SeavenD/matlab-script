@@ -1,0 +1,44 @@
+% N60 fft test
+% 1000rpm    1000/15 = 66.666667Hz   15ms one circle
+% sample_frq = 1.25e8;
+% sample_time = 1/sample_frq;
+% one circle can sample 1.25e8/1e3*15 = 1875000
+%% must inte circle can fft
+
+clc
+% clear
+% load("C1--N60-AC-Current.dat");
+signal_frq = 1000/15;
+sample_frq = 1.25e8;
+sample_time = 1/sample_frq;
+one_circle_sample_point = sample_frq/1e3*15;
+
+X = C1__N60_AC_Current(1:2*one_circle_sample_point,2);
+t = C1__N60_AC_Current(1:2*one_circle_sample_point,1);
+
+Fs = sample_frq;
+L = length(X);
+t_plot = (0:L-1)*sample_time; 
+figure(1)
+plot(t_plot,X);
+
+Y = fft(X);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f = Fs*(0:(L/2))/L;
+figure(2)
+
+
+plot(f(1:50),P1(1:50))
+title('Current harmonic distrbute')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+f=f/signal_frq;
+figure(3)
+stem(f(1:50),P1(1:50))
+title('Current harmonic distrbute')
+xlabel('number of harmonic')
+ylabel('|P1(f)|')
+
+
