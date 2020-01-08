@@ -1,0 +1,93 @@
+% 进行fft的数据长度最好是基本的整数倍。
+% 假设基波是正弦波，要是取非整数倍，会增加其它次谐波。
+
+close all
+clear;
+clc;
+set(0,'Defaultfigurecolor',[1 1 1]) % set fiure back white
+pic=0;
+Amp = 1;
+Amp_5 = 0.2;
+pi = 3.1415926;
+omega = 2*pi*2.0;
+harmonic_num = 5;
+sample_frq = 1000;
+sample_time = 1/sample_frq;
+
+t = 0:sample_time:2.0;
+Ia = Amp*cos(omega*t);
+Ia_5 = Amp_5*cos(harmonic_num*omega*t);
+IA = Ia+Ia_5;
+
+Ib = Amp*cos(omega*t-2/3*pi);
+Ib_5 = Amp_5*cos(harmonic_num*omega*t-2/3*pi);
+IB = Ib+Ib_5;
+Ic = Amp*cos(omega*t+2/3*pi);
+Ic_5 = Amp_5*cos(harmonic_num*omega*t+2/3*pi);
+IC = Ic+Ic_5;
+
+Ialfa = 2/3*(IA-0.5*Ib-0.5*IC);
+Ibeta = 2/3*(sqrt(3)/2*IB-sqrt(3)/2*IC);
+
+Id = Ialfa.*cos(omega*t) +Ibeta.*sin(omega*t);
+Iq = -Ialfa.*sin(omega*t) +Ibeta.*cos(omega*t);
+
+
+
+Fs = sample_frq;
+L = length(IA);
+t_plot = (0:L-1)*sample_time; 
+
+pic=pic+1;
+figure(pic)
+plot(t_plot,IA,t_plot,IB,t_plot,IC);
+
+pic=pic+1;
+figure(pic)
+plot(t_plot,Ialfa,t_plot,Ibeta);
+
+pic=pic+1;
+figure(pic)
+plot(t_plot,Id,t_plot,Iq);
+
+pic=pic+1;
+figure(pic)
+plot(t_plot,IA);
+plot(t_plot,Ia,t_plot,Ia_5,t_plot,IA);
+
+Y = fft(IA);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f = Fs*(0:(L/2))/L;
+pic=pic+1;
+figure(pic)
+stem(f(1:100),P1(1:100))
+title('IA Orignal signal fft ')
+grid on
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+Y_Id = fft(Id);
+P2_Id = abs(Y_Id/L);
+P1_Id = P2_Id(1:L/2+1);
+P1_Id(2:end-1) = 2*P1_Id(2:end-1);
+
+Y_Iq = fft(Iq);
+P2_Iq = abs(Y_Iq/L);
+P1_Iq = P2_Iq(1:L/2+1);
+P1_Iq(2:end-1) = 2*P1_Iq(2:end-1);
+f = Fs*(0:(L/2))/L;
+pic=pic+1;
+figure(pic)
+subplot(2,1,1)
+stem(f(1:100),P1_Id(1:100))
+title('Id Orignal signal fft ')
+grid on
+subplot(2,1,2)
+stem(f(1:100),P1_Iq(1:100))
+title('Iq Orignal signal fft ')
+grid on
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
